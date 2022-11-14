@@ -32,6 +32,17 @@ func NewDefaultSigningContext(ks X509KeyStore) *SigningContext {
 	}
 }
 
+// 采用xml-exc-c14n签名算法 --by cz 20221114
+func NewDefaultSigningContext_ByC14N10(ks X509KeyStore) *SigningContext {
+	return &SigningContext{
+		Hash:          crypto.SHA1,
+		KeyStore:      ks,
+		IdAttribute:   DefaultIdAttr,
+		Prefix:        DefaultPrefix,
+		Canonicalizer: MakeC14N10ExclusiveCanonicalizerWithPrefixList(""),
+	}
+}
+
 func (ctx *SigningContext) SetSignatureMethod(algorithmID string) error {
 	hash, ok := signatureMethodsByIdentifier[algorithmID]
 	if !ok {
@@ -96,7 +107,6 @@ func (ctx *SigningContext) constructSignedInfo(el *etree.Element, enveloped bool
 	} else {
 		reference.CreateAttr(URIAttr, "#"+dataId)
 	}
-
 
 	// /SignedInfo/Reference/Transforms
 	transforms := ctx.createNamespacedElement(reference, TransformsTag)
